@@ -3,11 +3,58 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
-  url      = env("DATABASE_URL")
+  provider = "postgresql"
+  url      = env("POSTGRESQL_DATABASE_URL")
 }
 
+// datasource db {
+//   provider = "mysql"
+//   url      = env("MYSQL_DATABASE_URL")
+// }
+
 model User {
-  id   Int    @id @default(autoincrement())
-  name String
+  id               String          @id @default(uuid())
+  name             String?
+  email            String          @unique
+  role             Role            @default(User)
+  myPosts          Post[]          @relation("MyPosts")
+  savedPosts       Post[]          @relation("SavedPosts")
+  managerId        String?         @unique
+  manager          User?           @relation("Manager", fields: [managerId], references: [id])
+  managedBy        User?           @relation("Manager")
+  userPreferenceId Int?            @unique
+  userPreference   UserPreference? @relation(fields: [userPreferenceId], references: [id])
+
+  @@unique([name, email])
+  @@index([email])
+}
+
+model UserPreference {
+  id           Int     @id @default(autoincrement())
+  emailUpdates Boolean
+  user         User?
+}
+
+model Post {
+  id        String   @id @default(uuid())
+  title     String?
+  rating    Float
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  authorId  String
+  author    User     @relation("MyPosts", fields: [authorId], references: [id])
+  savedById String?
+  savedBy   User?    @relation("SavedPosts", fields: [savedById], references: [id])
+  tags      Tag[]
+}
+
+model Tag {
+  id    String @id @default(uuid())
+  name  String @unique
+  posts Post[]
+}
+
+enum Role {
+  Manager
+  User
 }
