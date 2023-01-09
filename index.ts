@@ -51,8 +51,8 @@ const main = async () => {
           emailUpdates: true
         }
       }, managedUsers: {
-        createMany: {
-          data: [{
+        create: [
+          {
             name: 'User 7',
             email: 'user7@gmail.com',
           }, {
@@ -64,12 +64,12 @@ const main = async () => {
           }, {
             name: 'User 10',
             email: 'user10@gmail.com',
-          }]
-        }
+          }
+        ]
       }
     }
   })
-  await user.createMany({
+  const createUsers = await user.createMany({
     data: [{
       name: 'User 1',
       email: 'user1@gmail.com',
@@ -116,7 +116,28 @@ const main = async () => {
       }
     }
   })
-  console.log(users)
+  console.log("Users before update ==> ", users)
+  await user.update({
+    where: {
+      id: manager1.id
+    },
+    data: {
+      name: 'Manager 1 updated'
+    }
+  })
+  await user.upsert({
+    where: {
+      email: "manager45@gmail.com"
+    },
+    update: {
+      name: 'Manager 45 updated'
+    },
+    create: {
+      email: "manager45@gmail.com",
+      name: 'Manager 45 updated',
+    },
+  })
+  console.log("Users after update ==> ", users)
 }
 
 main()

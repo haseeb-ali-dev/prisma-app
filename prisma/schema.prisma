@@ -24,6 +24,8 @@ model User {
   managedUsers     User[]          @relation("Manager")
   userPreferenceId Int?            @unique
   userPreference   UserPreference? @relation(fields: [userPreferenceId], references: [id])
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
 
   @@unique([name, email])
   @@index([email])
